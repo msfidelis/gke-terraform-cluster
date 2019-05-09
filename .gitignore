@@ -1,9 +1,6 @@
-#  Local .terraform directories
-**/.terraform/*
+account.json
+.terraform
 
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
-# .tfvars files
-*.tfvars
+#Remove this for production
+terraform.tfstate
+terraform.tfstate.backup
