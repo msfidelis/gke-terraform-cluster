@@ -1,0 +1,86 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: microapi
+spec:
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: microapi
+    spec:
+      containers:
+      - name: microapi
+        image: msfidelis/micro-api:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: microapi
+
+  annotations:
+    beta.cloud.google.com/backend-config: '{"ports": {"80":"my-backend-config"}}'
+spec:
+  type: NodePort
+  selector:
+    app: microapi
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: 3000
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: my-ingress
+spec:
+  backend:
+    serviceName: microapi
+    servicePort: 3000
+  # rules:
+  # - http:
+  #     paths:
+  #     - path: /*
+  #       backend:
+  #         serviceName: microapi
+  #         servicePort: 3000
+  # #     - path: /discounted
+  #       backend:
+  #         serviceName: my-discounted-products
+  #         servicePort: 80
+
+# apiVersion: extensions/v1beta1
+# kind: HorizontalPodAutoscaler
+# metadata:
+#   name: microapi
+#   namespace: default
+# spec:
+#   scaleRef:
+#     kind: ReplicationController
+#     name: microapi
+#     namespace: default
+#   minReplicas: 5
+#   maxReplicas: 100
+#   cpuUtilization:
+#     targetPercentage: 50
+
+---
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: microapi
+spec:
+  scaleTargetRef:
+    kind: Pod
+    name: microapi
+  minReplicas: 5
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 70
