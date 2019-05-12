@@ -22,3 +22,14 @@ module "gke" {
     gke_master_user         = "${var.gke_master_user}"
     gke_master_password     = "${var.gke_master_password}"
 }
+
+module "k8s" {
+  source                    = "./modules/k8s"
+  host                      = "${module.gke.host}"
+  username                  = "${var.gke_master_user}"
+  password                  = "${var.gke_master_password}"
+
+  client_certificate        = "${module.gke.client_certificate}"
+  client_key                = "${module.gke.client_key}"
+  cluster_ca_certificate    = "${module.gke.cluster_ca_certificate}"
+}
